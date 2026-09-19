@@ -1,0 +1,15 @@
+name: astrbot_plugin_reply_style_guard
+display_name: Reply Style Guard - 短回复防漂移
+short_desc: 防止聊天机器人越聊越啰嗦：每轮短回复风格锚点 + 普通闲聊过长输出硬兜底。
+desc: 针对长期群聊中的文风自我强化问题。每轮以临时上下文提醒模型不要模仿历史回复的长度、口癖和动作描写；普通闲聊若仍输出过长，可在发送前按句子/自然标点缩短。明确要求分析、教程、写作、代码等任务默认自动跳过硬截短。
+version: 1.0.0
+author: akiby17
+repo: ""
+astrbot_version: ">=4.24,<5"
+support_platforms:
+  - aiocqhttp
+  - qq_official
+  - qq_official_webhook
+  - telegram
+  - discord
+  - satori

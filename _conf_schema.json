@@ -1,0 +1,80 @@
+{
+  "enabled": {
+    "description": "启用插件",
+    "type": "bool",
+    "default": true,
+    "hint": "关闭后不注入风格锚点，也不对输出做长度兜底。"
+  },
+  "apply_group": {
+    "description": "群聊生效",
+    "type": "bool",
+    "default": true,
+    "hint": "推荐开启。主要用于抑制群聊机器人长时间运行后的文风膨胀。"
+  },
+  "apply_private": {
+    "description": "私聊生效",
+    "type": "bool",
+    "default": false,
+    "hint": "默认关闭，避免影响私聊中的长问题、教程和知识问答。"
+  },
+  "prompt_anchor_enabled": {
+    "description": "每轮注入短回复风格锚点",
+    "type": "bool",
+    "default": true,
+    "hint": "推荐开启。每次 LLM 请求都临时提醒模型：历史只用于事实，不要模仿历史回答长度与口癖密度。"
+  },
+  "soft_target_chars": {
+    "description": "普通闲聊软目标字数",
+    "type": "int",
+    "default": 45,
+    "hint": "只用于提示模型，不会机械截到这个字数。推荐 30~60。"
+  },
+  "max_sentences": {
+    "description": "普通闲聊最多句数",
+    "type": "int",
+    "default": 2,
+    "hint": "软提示与硬兜底都会使用。推荐 1~2。"
+  },
+  "hard_guard_enabled": {
+    "description": "启用过长回复硬兜底",
+    "type": "bool",
+    "default": true,
+    "hint": "普通闲聊如果模型仍输出过长，会在发送前按句子和自然标点缩短。明确要求分析/教程/写作等任务会自动跳过。"
+  },
+  "hard_max_chars": {
+    "description": "普通闲聊硬上限字数",
+    "type": "int",
+    "default": 90,
+    "hint": "仅用于普通闲聊最终兜底。推荐 70~120；想更接近真人短聊可设 60~80。"
+  },
+  "strip_stage_directions": {
+    "description": "去除常见括号动作描写",
+    "type": "bool",
+    "default": true,
+    "hint": "例如（点头）（挠头）（大拇指）等会在普通闲聊硬兜底时去除；普通解释性括号会保留。"
+  },
+  "bypass_user_message_length": {
+    "description": "用户消息达到此长度时跳过硬截短",
+    "type": "int",
+    "default": 80,
+    "hint": "较长的用户输入通常是实质任务，因此只保留简洁提示，不强行截短回答。"
+  },
+  "bypass_keywords": {
+    "description": "跳过硬截短的关键词",
+    "type": "text",
+    "default": "详细,展开,解释,分析,为什么,为何,怎么,如何,教程,步骤,方法,原理,原因,总结,介绍,说明,列出,对比,比较,区别,代码,报错,日志,公式,计算,推导,证明,翻译,改写,润色,写一,写篇,文章,报告,论文,不少于,多少字,完整,具体",
+    "hint": "用户消息命中其中任一词时，不进行硬截短。可用逗号、空格或换行分隔。"
+  },
+  "custom_style_hint": {
+    "description": "额外风格规则",
+    "type": "text",
+    "default": "",
+    "hint": "可选。例如：不要每句话都叫主人；不要连续使用‘喵’；避免复述用户原话。会作为本轮临时提示注入。"
+  },
+  "debug_log": {
+    "description": "调试日志",
+    "type": "bool",
+    "default": false,
+    "hint": "开启后记录风格锚点注入、硬截短跳过原因等。实际发生截短时无论此项是否开启都会写一条 INFO 日志。"
+  }
+}
