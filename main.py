@@ -18,7 +18,7 @@ except Exception:  # AstrBot < 4.24 fallback
     "astrbot_plugin_reply_style_guard",
     "akiby17",
     "为群聊/闲聊持续注入短回复风格锚点，并在模型偶发输出过长时进行安全截短，降低长对话后的文风漂移。",
-    "1.0.0",
+    "1.1.0",
 )
 class ReplyStyleGuard(Star):
     """短回复防漂移插件。
@@ -48,7 +48,7 @@ class ReplyStyleGuard(Star):
     def __init__(self, context: Context, config: AstrBotConfig):
         super().__init__(context)
         self.config = config
-        logger.info("[ReplyStyleGuard] loaded v1.0.0")
+        logger.info("[ReplyStyleGuard] loaded v1.1.0")
 
     # -------------------- config / scope --------------------
     def _enabled(self) -> bool:
@@ -107,14 +107,15 @@ class ReplyStyleGuard(Star):
 
         base = (
             "<chat_style_guard>"
-            "这是即时聊天，不是作文。历史消息只用于理解事实、人物关系和当前话题，"
-            "不要模仿历史中 assistant 回复的长度、句式、口癖密度或动作描写。"
-            "普通闲聊优先只回一句自然短句，用户说得短，你也要短。"
+            "这是即时聊天，不是作文。历史消息主要用于理解事实、人物关系和当前话题，"
+            "不要继续模仿历史里逐渐变长、层层补充的回复结构。"
+            "保持既有人格、亲疏关系、语气和活泼程度，不要因为追求简短而变成冷淡、客服式或新闻播报式回答。"
+            "普通闲聊优先一到两句自然短句：先直接回应用户，再按语境自然接梗、吐槽、反问或表达情绪；不必把话题解释完整。"
             f"通常控制在约{target_chars}个汉字以内，最多{max_sentences}句短句。"
-            "不要解释自己刚说的梗，不要把同一个意思换几种说法重复表达，"
-            "不要连续堆叠称呼、自称、语气词、括号动作或人设口癖。"
-            "人设通过自然措辞体现，不需要每条消息刻意证明人设。"
-            "除非确有必要，同一条回复里昵称/称呼尽量不重复，口癖最多自然出现一次。"
+            "用户说得短，你也应简短，但要有回应感。"
+            "不要解释自己刚说的梗，不要把同一个意思换几种说法重复表达，也不要为了凑人设堆很多修饰。"
+            "称呼、口癖、语气词、波浪号、emoji或简短动作描写可以自然保留，适量即可；不要机械删除这些人格特征。"
+            "目标是‘短但有性格’，不是‘短而冷淡’。"
         )
         if bypass:
             base += (
@@ -174,7 +175,7 @@ class ReplyStyleGuard(Star):
 
     # -------------------- deterministic hard guard --------------------
     def _strip_action_parentheses(self, text: str) -> str:
-        if not bool(self.config.get("strip_stage_directions", True)):
+        if not bool(self.config.get("strip_stage_directions", False)):
             return text
 
         def repl(match: re.Match[str]) -> str:
@@ -228,12 +229,16 @@ class ReplyStyleGuard(Star):
         cleaned = re.sub(r"[ \t]+", " ", cleaned)
         cleaned = re.sub(r"\n{3,}", "\n\n", cleaned).strip()
 
-        max_sentences = max(1, int(self.config.get("max_sentences", 2)))
-        hard_max = max(20, int(self.config.get("hard_max_chars", 90)))
+        hard_max = max(20, int(self.config.get("hard_max_chars", 100)))
+        hard_sentence_guard = bool(self.config.get("hard_sentence_guard_enabled", False))
+        hard_max_sentences = max(1, int(self.config.get("hard_max_sentences", 4)))
 
-        chunks = self._sentence_chunks(cleaned)
-        if len(chunks) > max_sentences:
-            cleaned = "".join(chunks[:max_sentences]).strip()
+        # v1.1: do not mechanically cut a lively short reply just because it has
+        # several brief sentences. Sentence trimming is an optional emergency guard.
+        if hard_sentence_guard:
+            chunks = self._sentence_chunks(cleaned)
+            if len(chunks) > hard_max_sentences:
+                cleaned = "".join(chunks[:hard_max_sentences]).strip()
 
         if len(cleaned) > hard_max:
             cleaned = self._cut_at_natural_boundary(cleaned, hard_max)
@@ -297,8 +302,8 @@ class ReplyStyleGuard(Star):
             f"({'生效' if self._scope_allowed(event) else '不生效'})\n"
             f"提示词锚点：{'开启' if self.config.get('prompt_anchor_enabled', True) else '关闭'}\n"
             f"硬长度兜底：{'开启' if self.config.get('hard_guard_enabled', True) else '关闭'}\n"
-            f"软目标：约 {int(self.config.get('soft_target_chars', 45))} 字\n"
-            f"硬上限：{int(self.config.get('hard_max_chars', 90))} 字\n"
+            f"软目标：约 {int(self.config.get('soft_target_chars', 55))} 字\n"
+            f"硬上限：{int(self.config.get('hard_max_chars', 100))} 字\n"
             f"最多句数：{int(self.config.get('max_sentences', 2))}\n"
             f"当前消息硬截短：{'跳过' if bypass else '启用'}（{reason}）"
         )

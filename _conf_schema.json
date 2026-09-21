@@ -26,14 +26,14 @@
   "soft_target_chars": {
     "description": "普通闲聊软目标字数",
     "type": "int",
-    "default": 45,
-    "hint": "只用于提示模型，不会机械截到这个字数。推荐 30~60。"
+    "default": 55,
+    "hint": "只用于提示模型，不会机械截到这个字数。想保持活泼短聊推荐 45~70。"
   },
   "max_sentences": {
     "description": "普通闲聊最多句数",
     "type": "int",
     "default": 2,
-    "hint": "软提示与硬兜底都会使用。推荐 1~2。"
+    "hint": "只作为生成时的软提示。推荐 1~2；不会再因为短回复有多句就机械砍掉。"
   },
   "hard_guard_enabled": {
     "description": "启用过长回复硬兜底",
@@ -44,14 +44,26 @@
   "hard_max_chars": {
     "description": "普通闲聊硬上限字数",
     "type": "int",
-    "default": 90,
-    "hint": "仅用于普通闲聊最终兜底。推荐 70~120；想更接近真人短聊可设 60~80。"
+    "default": 100,
+    "hint": "仅在普通闲聊确实过长时兜底。推荐 90~120；设得太低容易显得冷淡。"
+  },
+  "hard_sentence_guard_enabled": {
+    "description": "启用硬句数兜底",
+    "type": "bool",
+    "default": false,
+    "hint": "默认关闭。避免把短而活泼的多句回复机械砍掉；只有你仍经常看到四五句以上的废话时再开启。"
+  },
+  "hard_max_sentences": {
+    "description": "硬句数上限",
+    "type": "int",
+    "default": 4,
+    "hint": "仅在“启用硬句数兜底”时生效。建议 3~4。"
   },
   "strip_stage_directions": {
     "description": "去除常见括号动作描写",
     "type": "bool",
-    "default": true,
-    "hint": "例如（点头）（挠头）（大拇指）等会在普通闲聊硬兜底时去除；普通解释性括号会保留。"
+    "default": false,
+    "hint": "默认关闭。开启后会去掉（点头）（挠头）等动作；如果角色依赖这些表达，不建议开启。"
   },
   "bypass_user_message_length": {
     "description": "用户消息达到此长度时跳过硬截短",
